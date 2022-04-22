@@ -1,0 +1,434 @@
+---
+title: "Final Reflection"
+output: html_document
+date: '2022-04-20'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+In this reflection i worked with various data frames in addition to data from  nycflights13 package.This package contains information about all flights that departed from NYC (e.g. EWR, JFK and LGA) to destinations in the United States, Puerto Rico, and the American Virgin Islands) in 2013. The package provides the following  tables.
+
+<li>flights: all flights that departed from NYC in 2013</li>
+<li>weather: hourly meteorological data for each airport</li>
+<li>planes: construction information about each plane</li>
+<li>airports: airport names and locations</li>
+<li>airlines: translation between two letter carrier codes and names.</li>
+<ol>
+The analysis helped me meet the following objectives.
+<li>To import manage and clean data</li>
+<li>To create graphical displays and numerical summaries of data for exploratory analysis and presentations.</li>
+<li>To write R programs for simulations from probability models and randomization-based analysis and presentations.
+<li>To use source documentation and other resources to troubleshoot and extend R programs.</li>
+<li>To write clear, efficient and well documented R programs.</li>
+<ol>
+
+
+### 1. To Import, Manage and Clean data
+To meet this objective i learnt how to load flat files with readr package which is part of the core tidyverse. The readr functions turns flat files into data frames. I used read_csv which reads comma delimited files.
+To manage data i learnt how to export a csv file to excel with write_excel_csv() function.
+To clean data i used the tidyr package which is a member of the core tidyverse.
+
+## Import
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+
+```{r}
+fatalities_from_terrorism_1_ <- read_csv("~/fatalities-from-terrorism (1).csv")
+View(fatalities_from_terrorism_1_)
+```
+
+## Manage
+To manage data i learnt how to export a csv file to excel with write_excel_csv() function.
+```{r}
+write_excel_csv(fatalities_from_terrorism_1_,"fatilities.xlsx")
+```
+
+## Data cleaning
+To have a clean data three rules must be achieved.
+<ol>
+<li>Each variable must have its own column.</li>
+<li>Each value must have its own row.</li>
+<li>Each value must have its own cell.</li>
+
+I used tidyr package,a package that provides a bunch of tools to help tidy up  messy datasets. tidyr is a member of the core tidyverse.I used the following functions from tidyr.
+<ol>
+<li> Pivoting:pivot_longer() to tidy data where the column names are not names of a variable but values of a variable and pivot_wider() when an observation is scattered across multiple rows.</li>
+<li>Separating and uniting:separate() to pull apart one column into multiple columns, by splitting wherever a separator character appears and unite() to combine multiple columns into a single column.</li>
+<li>Missing values:A value can be missing either explicitly(flagged with NA) or implicitly(not in the data).I handled Missing values using the following functions .
+<ol>
+
+<li>values_drop_na=TRUE:To drop missing values when they are not important in other representations of the data.</li>
+<li>complete() takes a set of columns and finds all unique combinations and fills explicit NA where necessary.</li>
+<li>fill() takes a set of columns where you want missing values to be replaced by the most relevant non-missing values</li>
+</ol>
+<ul>
+
+<li>pivot_longer()</li>
+```{r}
+table1<-read_csv("country,1999,2000
+Brazil,37737,80488
+China,212258,213766
+Iraq,745,2666")
+view(table1)
+```
+```{r}
+table1%>%pivot_longer(c("1999","2000"),names_to="year",values_to="cases")
+view(table1)
+                      
+```
+<li>pivot_wider()</li>
+```{r}
+table2<-read_csv("country,year,type,count
+                 iraq,1999,cases,745
+                 iraq,1999,population,19987071
+                 iraq,2000,cases,2666
+                 iraq,2000,population,20595360
+                 Brazil,1999,cases,37731
+                 Brazil,1999,population,172006362
+                 Brazil,2000,cases,80488
+                 Brazil,2000,population,174504898")
+view(table2)
+```
+```{r}
+table2%>%pivot_wider(names_from=type,values_from=count)
+view(table2)
+```
+<li>separate()</li>
+```{r}
+table3<-read_csv("country,year,rate
+                 Iraq,1999,745/19987071
+                 Iraq,2000,2666/20595360
+                 Brazil,1999,37737/172006362
+                 Brazil,2000,80488/174504898
+                 China,1999,212258/1272915272
+                 China,2000,213766/1280428583")
+view(table3)
+```
+
+```{r}
+table3%>%separate(rate,into=c("cases","population"))
+
+```
+
+```{r}
+table<-table3%>%separate(rate,into=c("cases","population"))
+```
+
+
+<li>unite()</li>
+```{r}
+table%>%unite(new,cases,population,sep="/")
+```
+<li>missing values</li>
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+view(stocks)
+```
+<li>values_drop_na=TRUE</li>
+```{r}
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(
+    cols = c(`2015`, `2016`), 
+    names_to = "year", 
+    values_to = "return", 
+    values_drop_na = TRUE
+  )
+```
+<li>complete()</li>
+```{r}
+stocks %>% 
+  complete(year, qtr)
+```
+<li>fill()</li>
+```{r}
+stocks%>%fill(return)
+```
+### 2.To Create graphical displays and numerical summaries of data for exploratory analysis and presentations.
+To meet this objective i learnt how to do exploratory data analysis and presentation(through graphical visualization).
+In exploratory data analysis,I looked at 
+<ol>
+<li>Variation in the data by
+<ol>
+<ul>
+<li>Visualizing distributions.For continuous and for categorical variables</li>
+<li>Checking typical values.</li>
+<li>Checking unusual values.</li>
+</ol>
+</li>
+<li>Missing values.</li>
+<li>Covariation.</li>
+<li>Patterns and Models.</li>
+For presentation of analysis,I created graphs using ggplot2 package.ggplot2 is the most versatile and elegant system of making graphs in R.Some of the graphical representations i created include
+<ul>
+<li>barcharts</li>
+<li>scatterplots</li>
+<li>facets</li>
+<li>boxplots</li>
+<li>smoothing lines</li>
+<ul>
+<li>visualising distributions for categorical variable</li>
+
+```{r}
+library(nycflights13)
+flights<-nycflights13::flights
+view(flights)
+```
+
+```{r}
+ggplot(data = flights) +
+  geom_bar(mapping = aes(x = carrier))
+```
+<li>visualising distributions for continuous variable</li>
+```{r}
+ggplot(data = flights, mapping = aes(x = air_time, colour = carrier)) +
+  geom_freqpoly(binwidth = 0.1)
+```
+
+<li>checking typical values</li>
+This is important because it turns the graphical representation of distributions above into useful questions by looking for anything unexpected.For example in the graph below clusters of similar values suggested that subgroups exist in the data.This can answer questions like,how are the observations in each cluster similar to each other?,how are observations in separate clusters different from each other?,how can one describe the clusters? or is the appearance of clusters misleading? 
+```{r}
+ggplot(data = flights, mapping = aes(x = air_time)) +
+  geom_histogram(binwidth = 0.2)
+```
+<li>Checking unusual values</li>
+This is important in spotting outliers. Outliers can be data entry errors or may suggest important information.To make it easier to see unusual values,i zoomed to small values of the y axis with coord_cartesian() function.
+```{r}
+ggplot(flights) + 
+  geom_histogram(mapping = aes(x = air_time), binwidth = 0.5) +
+  coord_cartesian(ylim = c(0, 50))
+```
+<li>Missing values</li>
+When encountered by unusual values in a dataset,there is always two options.If the data contains NA its always good to set na.rm=TRUE in order to surpress warnings from ggplot2 when plotting.
+<ul>
+<li>Drop the entire raw with the strange values</li>
+```{r}
+stocks <- stocks %>% 
+  filter(between(return, 3, 7))
+view(stocks)
+```
+
+<li>Replace unusual values with missing values using mutate()</li>
+```{r}
+stocks <- stocks %>% 
+  mutate(return = ifelse(return< 3 | return> 20, NA, return))
+view(stocks)
+```
+It is always good to understand what makes observations with missing values different to observations with recorded values. For example, in nycflights13::flights, missing values in the dep_time variable indicate that the flight was cancelled. So I compared the scheduled departure times for cancelled and non-cancelled times.I did this by making a new variable with is.na().
+```{r}
+nycflights13::flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>% 
+  ggplot(mapping = aes(sched_dep_time)) + 
+    geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
+```
+
+
+<li>Covariation of a categorical and continuous variable</li>
+Describes the behavior between variables i.e values of two or more variables  varying together in a related way.The best way to spot covariation is to visualise the relationship between two or more variables.For example i explored how the departure delay of a flight varies with its carrier using a boxplot.The graph below shows AA,B6,DL and US have a lower departure delay time on average.
+```{r}
+ggplot(data = flights, mapping = aes(x = carrier, y = dep_delay)) +
+  geom_boxplot()+
+  coord_flip()
+```
+
+<li>Covariation in two categorical variables</li>
+The  of color of each block in the plot below displays how many observations occurred at each combination of values. Covariation will appear as a strong correlation between specific x values and specific y values.
+
+```{r}
+flights %>% 
+  count(carrier,origin ) %>%  
+  ggplot(mapping = aes(x = carrier, y = origin)) +
+    geom_tile(mapping = aes(fill = n))
+```
+
+<li>Covariation between two continuous variables</li>
+I used geom_bin2d() and geom_hex() to divide the coordinate plane into 2d bins and then used a fill color to display how many points fell into each bin. geom_bin2d() creates rectangular bins. geom_hex() creates hexagonal bins.
+
+
+```{r}
+weather<-nycflights13::weather
+view(weather)
+```
+
+```{r}
+ggplot(data = weather) +
+  geom_bin2d(mapping = aes(x = temp, y = wind_dir))
+
+#install.packages("hexbin")
+ggplot(data = weather) +
+  geom_hex(mapping = aes(x = temp, y = wind_dir))
+```
+
+### 3.To write R programs for simulations from probability models and randomization-based experiments
+For this objective i built a linear model to fit the temperature in the  weather table from nycflights13 package.
+```{r}
+library(nycflights13)
+weather<-nycflights13::weather
+```
+
+<li>I visualized the average recorded temperature every day  using ggplot2 to watch the long term trend</li>
+
+
+```{r}
+#install.packages("lubridate")
+```
+
+
+```{r}
+#library(tidyverse)
+library(modelr)
+options(na.action = na.warn)
+
+#library(nycflights13)
+library(lubridate)
+```
+
+```{r}
+daily <- weather%>% 
+  mutate(date = make_date(year, month, day)) %>% 
+  group_by(date) %>% 
+  summarise(temperature=mean(temp,na.rm=TRUE))
+```
+
+```{r}
+ggplot(daily, aes(date, temperature)) + 
+  geom_line()
+```
+
+<li>I then visualized the distribution of the temperature levels by day of the week  to see the shorter trend.From the graph below mondays and saturdays experienced lower temperatures </li>
+```{r}
+daily <- daily %>% 
+  mutate(wday = wday(date, label = TRUE))
+ggplot(daily, aes(wday, temperature)) + 
+  geom_boxplot()
+```
+<li>I fitted a linear model and displayed its predictions overlaid on the original data</li>
+```{r}
+mod <- lm(temperature ~ wday, data = daily)
+
+grid <- daily %>% 
+  data_grid(wday) %>% 
+  add_predictions(mod, "temperature")
+
+ggplot(daily, aes(wday, temperature)) + 
+  geom_boxplot() +
+  geom_point(data = grid, colour = "red", size = 4)
+```
+<li>Then i computed the residuals and visualized them</li>.
+<p>From the graph below the model seems to frail all through and hence a better option should be to try another family of models.Which i experienced difficulties doing</p>
+
+```{r}
+daily <- daily %>% 
+  add_residuals(mod)
+daily %>% 
+  ggplot(aes(date, resid,colour=wday)) + 
+  geom_ref_line(h = 0) + 
+  geom_line()
+```
+
+
+### 4.To Use source documentation and other resources to troubleshoot and extend R programs
+I achieved this objective by doing data transformations and handling relational databases using the dplr package and data from nycflights13 package. My analysis included;
+<ul>
+<li>Filtering rows with filter():This allows to subset observations based on their values.</li>
+<li>Arranging rows with arrange():This changes the order of the data either ascending or descending provided the column names or other expressions to order by.</li>
+<li>Selecting columns with select():This is used to narrow down variables when working with datasets with hundreds or thousands of columns</li>
+<li>Adding new variables with mutate():This is used to add new columns that are functions of existing columns.</li>
+<li>Grouping and summarizing data with group_by and summarise():It changes the unit of analysis from the complete dataset to individual groups and then collapses the groups to a single row</li>
+<li>left_join():Allows to combine variables from two tables keeping all observations in x<>
+<li>right_join():Allows to combine variables from two tables keeping all observation in y</li>
+<li>full_join</li>:Allows to combine variables from two tables keeping all observations in x and y
+
+<li>filter()</li>
+```{r}
+filter(flights,month==1)
+
+
+```
+<li>arrange()</li>
+```{r}
+arrange(flights,arr_time)
+```
+<li>select()</li>
+```{r}
+select(flights,day,dep_time,arr_time)
+```
+<li>mutate()</li>
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time
+)
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60
+)
+
+```
+<li>group_by and summarise()</li>
+```{r}
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+```
+
+<li>left_join()</li>
+```{r}
+airlines<-nycflights13::airlines
+flights %>%
+  select(year,month,day,carrier) %>% 
+  left_join(airlines, by = "carrier")
+```
+<li>right_join()</li>
+```{r}
+flights%>%
+  select(year,month,day,carrier)%>%
+  right_join(airlines,by="carrier")
+```
+<li>full_join()</li>
+```{r}
+flights%>%
+  full_join(airlines,by="carrier")
+  
+```
+
+### 5.Write clear,efficient and well documented R programs
+
+<li>This objective was achieved through objective 1,2,3 and 4.</li>
+<li>All the codes were written in  Rmarkdown file and then knitted to a html file.</li> 
+# Highlights
+<ol>
+<li>I experienced problems trying to fit other models,other than linear models</li>
+<li>My most successful parts of the course have been.</li>
+<ul>
+<li>Use of Rstudio, github and markdown.</li>
+<li>Data visualization with with ggplot2.</li>
+<li>Data transformation e.g pivoting.</li>
+<li>use of tibbles,data import and tidying data.</li>
+<li>Dealing with R packages.</li>
+</ol>
+</li>
+<li>Challenges</li>
+<ul>
+<li>Statistical modelling and simulation.</li>
+<li>perfecting a shiny app.</li>
+<p>Generally i feel am at a good position in this class</p>
+Grade A
+
